@@ -124,9 +124,10 @@ void parseCommand(String input_str)
   if (input_str.indexOf("/RGB/") != -1) {
     // Команда относится к RGB-каналу
     cur_command[0] = input_str; 
+    RGB_len = 0; // обнуляем длину последовательности   
+    RGB_index = 0; // обнуляем текущее положение в команде - пришла новая
     if (cmd.equals("SLD")) {
       // Режим постоянного горения
-      RGB_len = 0; // обнуляем длину последовательности
       RGB_color = tmp_buf.substring(0,6);
       Serial1.println(RGB_color);
       R_val = convertToInt(RGB_color[0],RGB_color[1]) * 4;
@@ -146,12 +147,10 @@ void parseCommand(String input_str)
       analogWrite(B_PIN,B_val);
     } else if(cmd.equals("SEQ")) {
 //      tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
-      RGB_len = 0;
       pos1 = 0;
       pos2 = 0;
       Serial1.print("Sequence detected ");
       Serial1.println(tmp_buf.indexOf('/',pos1));
-      
       while(tmp_buf.indexOf('/',pos1) != -1) {
         pos2 = tmp_buf.indexOf('/',pos1 + 1);
         argument = tmp_buf.substring(pos1,pos2);
@@ -182,12 +181,13 @@ void parseCommand(String input_str)
       Serial1.print("Wrong command!!! - ");
       Serial1.println(cmd);
     }
- 
   } else if (input_str.indexOf("/STR/") != -1) {
     // Команда относится к стробосокпам и сиренам
+    cur_command[1] = input_str; // запоминаем текущую команду для этого канала
+    STR_len = 0; // обнуляем длину последовательности
+    STR_index = 0; // обнуляем теущий индекс - новая команда
     if (cmd.equals("SLD")) {
       // Режим постоянного горения
-      STR_len = 0; // обнуляем длину последовательности
       STR_val = tmp_buf[1];
       if (STR_val == '0') {
         digitalWrite(W1_PIN,LOW);
@@ -196,13 +196,12 @@ void parseCommand(String input_str)
       }
     }  else if(cmd.equals("SEQ")) {
       tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
-      STR_len = 0;
       pos1 = 0;
       pos2 = 0;
       while(tmp_buf.indexOf(pos1,'/') != -1) {
         pos2 = tmp_buf.indexOf(pos1 + 1,'/');
         argument = tmp_buf.substring(pos1,pos2 - pos1);
-        if (tmp_buf.length() < 6) {
+        if (tmp_buf.length() < 2) {
           STR_cycle = tmp_buf[0];
           break;
         }
@@ -219,14 +218,17 @@ void parseCommand(String input_str)
     }
   } else if (input_str.indexOf("/LGT/") != -1) {
     // Команда относится к большому свету
+    cur_command[2] = input_str; // запоминаем текущую команду для этого канала
+    LGT_len = 0; // обнуляем длину последовательности
+    LGT_index = 0; // обнуляем теущий индекс - новая команда
     if (cmd.equals("SLD")) {
       // Режим постоянного горения
       LGT_len = 0; // обнуляем длину последовательности
       LGT_val = tmp_buf[1];
       if (LGT_val == '0') {
-        digitalWrite(W1_PIN,LOW);
+        digitalWrite(W2_PIN,LOW);
       } else {
-        digitalWrite(W1_PIN,HIGH);  
+        digitalWrite(W2_PIN,HIGH);  
       }
     } else if(cmd.equals("SEQ")) {
       tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
@@ -236,7 +238,7 @@ void parseCommand(String input_str)
       while(tmp_buf.indexOf(pos1,'/') != -1) {
         pos2 = tmp_buf.indexOf(pos1 + 1,'/');
         argument = tmp_buf.substring(pos1,pos2 - pos1);
-        if (tmp_buf.length() < 6) {
+        if (tmp_buf.length() < 2) {
           LGT_cycle = tmp_buf[0];
           break;
         }
@@ -446,7 +448,7 @@ void loop() {
         digitalWrite(W1_PIN,HIGH);
       }
       Serial1.print("Millis for phase = ");
-      Serial1.println(RGB_ctime);
+      Serial1.println(STR_ctime);
       Serial1.print("Millis now = ");
       Serial1.println(now);
     }  
