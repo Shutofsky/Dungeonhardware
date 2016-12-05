@@ -64,15 +64,15 @@ int LGT_ftime = 0;
   признак:
       S - одиночное выполнение последовательности
       C - повторение последовательности в замкнутом режиме
- 
  */
 
 
 // Update these with values suitable for your network.
 
-const char* ssid = "P2797-24";
+const char* ssid = "ArmyDep";
 const char* password = "z0BcfpHu";
-const char* mqtt_server = "192.168.0.103";
+const char* mqtt_server = "192.168.0.200";
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -188,30 +188,30 @@ void parseCommand(String input_str)
     STR_index = 0; // обнуляем теущий индекс - новая команда
     if (cmd.equals("SLD")) {
       // Режим постоянного горения
-      STR_val = tmp_buf[1];
+      STR_val = tmp_buf[0];
       if (STR_val == '0') {
         digitalWrite(W1_PIN,LOW);
       } else {
         digitalWrite(W1_PIN,HIGH);  
       }
     }  else if(cmd.equals("SEQ")) {
-      tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
+//      tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
       pos1 = 0;
       pos2 = 0;
-      while(tmp_buf.indexOf(pos1,'/') != -1) {
-        pos2 = tmp_buf.indexOf(pos1 + 1,'/');
-        argument = tmp_buf.substring(pos1,pos2 - pos1);
-        if (tmp_buf.length() < 2) {
-          STR_cycle = tmp_buf[0];
-          break;
-        }
-        pos1 = pos2 + 1;
+      while(tmp_buf.indexOf('/',pos1) != -1) {
+        pos2 = tmp_buf.indexOf('/',pos1 + 1);
+        argument = tmp_buf.substring(pos1,pos2);
+        pos1 = pos2 +1;
         STR_seq[STR_len] = argument;
-        pos2 = tmp_buf.indexOf(pos1,'/');
-        argument = tmp_buf.substring(pos1,pos2 - pos1);
+        pos2 = tmp_buf.indexOf('/',pos1);
+        argument = tmp_buf.substring(pos1,pos2);
+        pos1 = pos2 + 1;
         STR_time[STR_len] = argument;
         STR_len += 1;
-      }      
+      }
+      STR_cycle = tmp_buf[pos1];
+      STR_ctime = millis();
+      STR_ftime = 0;
     } else {
       Serial1.print("Wrong command!!! - ");
       Serial1.println(cmd);
@@ -224,31 +224,30 @@ void parseCommand(String input_str)
     if (cmd.equals("SLD")) {
       // Режим постоянного горения
       LGT_len = 0; // обнуляем длину последовательности
-      LGT_val = tmp_buf[1];
+      LGT_val = tmp_buf[0];
       if (LGT_val == '0') {
         digitalWrite(W2_PIN,LOW);
       } else {
         digitalWrite(W2_PIN,HIGH);  
       }
     } else if(cmd.equals("SEQ")) {
-      tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
-      LGT_len = 0;
+//      tmp_buf = tmp_buf.substring(1); // Обрезаем самй первый слэш
       pos1 = 0;
       pos2 = 0;
-      while(tmp_buf.indexOf(pos1,'/') != -1) {
-        pos2 = tmp_buf.indexOf(pos1 + 1,'/');
-        argument = tmp_buf.substring(pos1,pos2 - pos1);
-        if (tmp_buf.length() < 2) {
-          LGT_cycle = tmp_buf[0];
-          break;
-        }
-        pos1 = pos2 + 1;
+      while(tmp_buf.indexOf('/',pos1) != -1) {
+        pos2 = tmp_buf.indexOf('/',pos1 + 1);
+        argument = tmp_buf.substring(pos1,pos2);
+        pos1 = pos2 +1;
         LGT_seq[LGT_len] = argument;
-        pos2 = tmp_buf.indexOf(pos1,'/');
-        argument = tmp_buf.substring(pos1,pos2 - pos1);
+        pos2 = tmp_buf.indexOf('/',pos1);
+        argument = tmp_buf.substring(pos1,pos2);
+        pos1 = pos2 + 1;
         LGT_time[LGT_len] = argument;
-        LGT_len += 1;    
-      }    
+        LGT_len += 1;
+      }
+      LGT_cycle = tmp_buf[pos1];
+      LGT_ctime = millis();
+      LGT_ftime = 0;
     } else {
       Serial1.print("Wrong command!!! - ");
       Serial1.println(cmd);
