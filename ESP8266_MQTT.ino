@@ -346,7 +346,7 @@ void loop() {
 
   if(RGB_len > 0) {
     if(RGB_index >= RGB_len) {
-      if(RGB_cycle == 'S') {
+      if(RGB_cycle == 'C') {
         RGB_index = 0;
         RGB_ftime = 0;
       } else {
@@ -411,7 +411,7 @@ void loop() {
 
   if(STR_len > 0) {
     if(STR_index >= STR_len) {
-      if(STR_cycle == 'S') {
+      if(STR_cycle == 'C') {
         STR_index = 0;
         STR_ftime = 0;
       } else {
@@ -465,7 +465,7 @@ void loop() {
 
   if(LGT_len > 0) {
     if(LGT_index >= LGT_len) {
-      if(LGT_cycle == 'S') {
+      if(LGT_cycle == 'C') {
         LGT_index = 0;
         LGT_ftime = 0;
       } else {
